@@ -4,7 +4,6 @@ from .utils.dataIO import fileIO
 from .utils import checks
 import os
 import json
-import httplib2
 from copy import deepcopy
 from __main__ import user_allowed, send_cmd_help
 try: # check if BeautifulSoup4 is installed
@@ -12,6 +11,11 @@ try: # check if BeautifulSoup4 is installed
     soupAvailable = True
 except:
     soupAvailable = False
+try: #check if httplib2 is installed
+    import httplib2
+    httpAvailable = True
+except:
+    httpAvailable = False
 
 class TF2:
     """TF2 Red Cog"""
@@ -30,6 +34,7 @@ class TF2:
     @checks.mod_or_permissions(manage_server=True)
     async def addplayer(self, ctx, player : str, *, text):
         """Adds a custom player with an alias and their SteamID64 (ex: 7656119XXXXXXXXXX)
+        The SteamID can be found on your Steam profile or in the url of your logs and ss profile.
 
         Example:
         !tf2 addplayer player 7656119XXXXXXXXXX
@@ -168,8 +173,11 @@ def check_files():
         fileIO(f, "save", {})
         
 def setup(bot):
-    check_folders()
-    check_files()
-    n = TF2(bot)
-    bot.add_cog(n)
+    if soupAvailable and httpAvailable:
+        check_folders()
+        check_files()
+        n = TF2(bot)
+        bot.add_cog(n)
+    else:
+        raise RuntimeError("You need to run `pip3 install beautifulsoup4` and/ or `pip3 install httplib2`")
     # tf2-module
